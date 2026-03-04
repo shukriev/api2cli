@@ -1,0 +1,169 @@
+openapi: "3.0.3"
+info:
+  title: Petstore
+  version: "1.0.0"
+  description: A sample API for testing
+servers:
+  - url: https://petstore.example.com
+    description: Production server
+tags:
+  - name: pets
+    description: Pet operations
+  - name: owners
+    description: Owner operations
+paths:
+  /pets:
+    get:
+      operationId: listPets
+      summary: List all pets
+      tags: [pets]
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [available, pending, sold]
+      responses:
+        "200":
+          description: A list of pets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Pet"
+    post:
+      operationId: createPet
+      summary: Create a pet
+      tags: [pets]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewPet"
+      responses:
+        "201":
+          description: Pet created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pet"
+  /pets/{petId}:
+    parameters:
+      - name: petId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: getPet
+      summary: Get a pet by ID
+      tags: [pets]
+      responses:
+        "200":
+          description: A pet
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pet"
+        "404":
+          description: Pet not found
+    put:
+      operationId: updatePet
+      summary: Update a pet
+      tags: [pets]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewPet"
+      responses:
+        "200":
+          description: Pet updated
+    delete:
+      operationId: deletePet
+      summary: Delete a pet
+      tags: [pets]
+      responses:
+        "204":
+          description: Pet deleted
+  /owners:
+    get:
+      operationId: listOwners
+      summary: List all owners
+      tags: [owners]
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: A list of owners
+  /owners/{ownerId}:
+    parameters:
+      - name: ownerId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: getOwner
+      summary: Get an owner
+      tags: [owners]
+      responses:
+        "200":
+          description: An owner
+    delete:
+      operationId: deleteOwner
+      summary: Delete an owner
+      tags: [owners]
+      responses:
+        "204":
+          description: Owner deleted
+components:
+  schemas:
+    Pet:
+      type: object
+      required: [id, name]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        status:
+          type: string
+          enum: [available, pending, sold]
+        owner_id:
+          type: string
+    NewPet:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        status:
+          type: string
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    BearerAuth:
+      type: http
+      scheme: bearer

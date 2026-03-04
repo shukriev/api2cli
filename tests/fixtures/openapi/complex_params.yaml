@@ -1,0 +1,86 @@
+openapi: "3.0.3"
+info:
+  title: Complex Params API
+  version: "1.0.0"
+servers:
+  - url: https://api.example.com
+paths:
+  /resources/{resourceId}/items:
+    parameters:
+      - name: resourceId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: listResourceItems
+      summary: List items in a resource
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: X-Request-Id
+          in: header
+          schema:
+            type: string
+        - name: session_id
+          in: cookie
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                  next_cursor:
+                    type: string
+    post:
+      operationId: createResourceItem
+      summary: Create an item in a resource
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+      responses:
+        "201":
+          description: Created
+components:
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    OAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://example.com/oauth/authorize
+          tokenUrl: https://example.com/oauth/token
+          scopes:
+            read: Read access
+            write: Write access
